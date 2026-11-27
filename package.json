@@ -1,0 +1,10 @@
+{
+  "name": "enterxera-db",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "description": "Static anime metadata & ex_id mapping database for EnterXera",
+  "scripts": {
+    "sync": "node scripts/sync-db.mjs"
+  }
+}

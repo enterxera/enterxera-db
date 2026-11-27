@@ -1,0 +1,36 @@
+name: Sync EnterXera DB
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run DB sync
+        run: npm run sync
+
+      - name: Commit & Push changes
+        run: |
+          git config user.name "enterxera-bot"
+          git config user.email "bot@enterxera.com"
+          git add data/
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(db): sync anime metadata & ex_id mappings"
+            git push
+          fi
