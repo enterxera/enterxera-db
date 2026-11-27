@@ -6155,7 +6155,7 @@
       "tt0107228"
     ],
     "animenewsnetwork_id": 615,
-    "wikidata_id": null,
+    "wikidata_id": "Q426252",
     "official_url": null
   },
   "407": {
@@ -6221,7 +6221,7 @@
       "tt0156887"
     ],
     "animenewsnetwork_id": 192,
-    "wikidata_id": null,
+    "wikidata_id": "Q22981719",
     "official_url": null
   },
   "411": {
@@ -178443,9 +178443,15 @@
     "ex_id": 13272,
     "mal_id": 36030,
     "anilist_id": 105892,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "movie": [
+        695638
+      ]
+    },
     "tvdb_id": null,
-    "imdb_id": null,
+    "imdb_id": [
+      "tt28317685"
+    ],
     "animenewsnetwork_id": 23406,
     "wikidata_id": null,
     "official_url": null
@@ -194754,7 +194760,11 @@
     "ex_id": 14580,
     "mal_id": 38078,
     "anilist_id": null,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "movie": [
+        726057
+      ]
+    },
     "tvdb_id": null,
     "imdb_id": null,
     "animenewsnetwork_id": null,
@@ -199075,7 +199085,11 @@
     "ex_id": 14928,
     "mal_id": 38702,
     "anilist_id": 110491,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "movie": [
+        522705
+      ]
+    },
     "tvdb_id": null,
     "imdb_id": null,
     "animenewsnetwork_id": null,
@@ -210830,7 +210844,11 @@
     "ex_id": 15891,
     "mal_id": 40238,
     "anilist_id": 114749,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "movie": [
+        621794
+      ]
+    },
     "tvdb_id": null,
     "imdb_id": null,
     "animenewsnetwork_id": null,
@@ -222832,7 +222850,11 @@
     "ex_id": 16861,
     "mal_id": 42277,
     "anilist_id": 121044,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "movie": [
+        601638
+      ]
+    },
     "tvdb_id": null,
     "imdb_id": null,
     "animenewsnetwork_id": null,
@@ -265531,9 +265553,15 @@
     "ex_id": 20640,
     "mal_id": 48126,
     "anilist_id": null,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "movie": [
+        796039
+      ]
+    },
     "tvdb_id": null,
-    "imdb_id": null,
+    "imdb_id": [
+      "tt11654032"
+    ],
     "animenewsnetwork_id": null,
     "wikidata_id": null,
     "official_url": null
@@ -267071,9 +267099,13 @@
     "ex_id": 20774,
     "mal_id": 48323,
     "anilist_id": null,
-    "themoviedb_id": null,
-    "tvdb_id": null,
-    "imdb_id": null,
+    "themoviedb_id": {
+      "tv": 72479
+    },
+    "tvdb_id": 327407,
+    "imdb_id": [
+      "tt11163090"
+    ],
     "animenewsnetwork_id": null,
     "wikidata_id": null,
     "official_url": null
@@ -271596,9 +271628,15 @@
     "ex_id": 21136,
     "mal_id": 49194,
     "anilist_id": 148075,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "movie": [
+        568544
+      ]
+    },
     "tvdb_id": null,
-    "imdb_id": null,
+    "imdb_id": [
+      "tt2027278"
+    ],
     "animenewsnetwork_id": null,
     "wikidata_id": null,
     "official_url": null
@@ -286035,7 +286073,9 @@
     "ex_id": 22310,
     "mal_id": 51685,
     "anilist_id": 148376,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "tv": 197953
+    },
     "tvdb_id": 430313,
     "imdb_id": null,
     "animenewsnetwork_id": null,
@@ -292529,9 +292569,15 @@
     "ex_id": 22860,
     "mal_id": 52704,
     "anilist_id": null,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "movie": [
+        1320431
+      ]
+    },
     "tvdb_id": null,
-    "imdb_id": null,
+    "imdb_id": [
+      "tt6009496"
+    ],
     "animenewsnetwork_id": null,
     "wikidata_id": null,
     "official_url": null
@@ -305955,9 +306001,15 @@
     "ex_id": 23999,
     "mal_id": 54602,
     "anilist_id": 161958,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "movie": [
+        1090213
+      ]
+    },
     "tvdb_id": null,
-    "imdb_id": null,
+    "imdb_id": [
+      "tt26776509"
+    ],
     "animenewsnetwork_id": 27192,
     "wikidata_id": null,
     "official_url": null
@@ -328339,7 +328391,11 @@
     "ex_id": 25911,
     "mal_id": 57464,
     "anilist_id": null,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "movie": [
+        1260260
+      ]
+    },
     "tvdb_id": null,
     "imdb_id": null,
     "animenewsnetwork_id": null,
@@ -344952,7 +345008,9 @@
     "ex_id": 27315,
     "mal_id": 59685,
     "anilist_id": null,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "tv": 276632
+    },
     "tvdb_id": null,
     "imdb_id": null,
     "animenewsnetwork_id": null,
@@ -359057,7 +359115,9 @@
     "ex_id": 28498,
     "mal_id": 61379,
     "anilist_id": 189716,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "tv": 296170
+    },
     "tvdb_id": null,
     "imdb_id": null,
     "animenewsnetwork_id": null,
@@ -374022,7 +374082,9 @@
     "ex_id": 29771,
     "mal_id": 63313,
     "anilist_id": null,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "tv": 194915
+    },
     "tvdb_id": null,
     "imdb_id": null,
     "animenewsnetwork_id": null,
@@ -383621,8 +383683,10 @@
     "ex_id": 30603,
     "mal_id": 64600,
     "anilist_id": 214049,
-    "themoviedb_id": null,
-    "tvdb_id": null,
+    "themoviedb_id": {
+      "tv": 328525
+    },
+    "tvdb_id": 480173,
     "imdb_id": null,
     "animenewsnetwork_id": 40337,
     "wikidata_id": null,
@@ -384060,7 +384124,9 @@
     "ex_id": 30642,
     "mal_id": 64667,
     "anilist_id": 214380,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "tv": 329546
+    },
     "tvdb_id": 480612,
     "imdb_id": null,
     "animenewsnetwork_id": 40368,
@@ -384181,7 +384247,9 @@
     "ex_id": 30653,
     "mal_id": 64680,
     "anilist_id": null,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "tv": 320006
+    },
     "tvdb_id": null,
     "imdb_id": null,
     "animenewsnetwork_id": null,
@@ -384192,7 +384260,11 @@
     "ex_id": 30654,
     "mal_id": 64681,
     "anilist_id": null,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "movie": [
+        1690479
+      ]
+    },
     "tvdb_id": null,
     "imdb_id": null,
     "animenewsnetwork_id": null,
@@ -384699,7 +384771,9 @@
     "ex_id": 30699,
     "mal_id": 64744,
     "anilist_id": 220004,
-    "themoviedb_id": null,
+    "themoviedb_id": {
+      "tv": 337997
+    },
     "tvdb_id": null,
     "imdb_id": null,
     "animenewsnetwork_id": 39997,
@@ -408990,6 +409064,61 @@
     "ex_id": 32882,
     "mal_id": null,
     "anilist_id": 99839,
+    "themoviedb_id": null,
+    "tvdb_id": null,
+    "imdb_id": null,
+    "animenewsnetwork_id": null,
+    "wikidata_id": null,
+    "official_url": null
+  },
+  "32883": {
+    "ex_id": 32883,
+    "mal_id": 65549,
+    "anilist_id": null,
+    "themoviedb_id": null,
+    "tvdb_id": null,
+    "imdb_id": null,
+    "animenewsnetwork_id": null,
+    "wikidata_id": null,
+    "official_url": null
+  },
+  "32884": {
+    "ex_id": 32884,
+    "mal_id": 65550,
+    "anilist_id": null,
+    "themoviedb_id": null,
+    "tvdb_id": null,
+    "imdb_id": null,
+    "animenewsnetwork_id": null,
+    "wikidata_id": null,
+    "official_url": null
+  },
+  "32885": {
+    "ex_id": 32885,
+    "mal_id": 65556,
+    "anilist_id": null,
+    "themoviedb_id": null,
+    "tvdb_id": null,
+    "imdb_id": null,
+    "animenewsnetwork_id": null,
+    "wikidata_id": null,
+    "official_url": null
+  },
+  "32886": {
+    "ex_id": 32886,
+    "mal_id": 65558,
+    "anilist_id": null,
+    "themoviedb_id": null,
+    "tvdb_id": null,
+    "imdb_id": null,
+    "animenewsnetwork_id": null,
+    "wikidata_id": null,
+    "official_url": null
+  },
+  "32887": {
+    "ex_id": 32887,
+    "mal_id": 65559,
+    "anilist_id": null,
     "themoviedb_id": null,
     "tvdb_id": null,
     "imdb_id": null,
