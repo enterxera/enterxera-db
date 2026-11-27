@@ -1,8 +1,8 @@
-name: Sync EnterXera DB
+name: Sync EnterXera DB Matrix
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/20 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -20,7 +20,10 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Run DB sync
+      - name: Run Full Parallel Sync
+        env:
+          ENRICH_LIMIT: 5000
+          CONCURRENCY: 50
         run: npm run sync
 
       - name: Commit & Push changes
@@ -31,6 +34,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore(db): sync anime metadata & ex_id mappings"
-            git push
+            git commit -m "chore(db): bulk matrix sync anime metadata"
+            git pull --rebase origin main
+            git push origin main
           fi
