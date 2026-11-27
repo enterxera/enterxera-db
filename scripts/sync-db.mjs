@@ -9,6 +9,7 @@ const ANIME_DIR = path.join(DATA_DIR, 'anime');
 const MAPPINGS_PATH = path.join(DATA_DIR, 'mappings.json');
 const INDEX_PATH = path.join(DATA_DIR, 'index.json');
 const ENRICH_LIMIT = Number(process.env.ENRICH_LIMIT || 500);
+const CONCURRENCY = Number(process.env.CONCURRENCY || 20);
 
 async function readJson(filePath, fallback) {
   try {
@@ -23,50 +24,33 @@ function getShard(exId) {
   return Math.ceil(exId / 10000);
 }
 
-function decodeXml(str) {
-  return str
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'");
-}
-
-async function enrichFromANN(annId) {
+async function enrichFromWikidata(title) {
+  if (!title) return null;
   try {
-    const res = await fetch(
-      `https://cdn.animenewsnetwork.com/encyclopedia/api.xml?anime=${annId}`
-    );
-    if (!res.ok) return null;
-    const xml = await res.text();
+    const searchUrl = `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(
+      title
+    )}&language=en&format=json&limit=1`;
+    const searchRes = await fetch(searchUrl, {
+      headers: { 'User-Agent': 'EnterXeraBot/1.0 (https://enterxera.com)' },
+    });
+    if (!searchRes.ok) return null;
+    const searchData = await searchRes.json();
+    const entity = searchData?.search?.[0];
+    if (!entity?.id) return null;
 
-    const plotMatch = xml.match(/<info[^>]*type="Plot Summary"[^>]*>([\s\S]*?)<\/info>/);
-    const picMatch = xml.match(/<info[^>]*type="Picture"[^>]*src="([^"]+)"/);
-
-    const episodes = [];
-    const epRegex = /<episode num="([^"]+)">\s*<title[^>]*>([\s\S]*?)<\/title>/g;
-    let m;
-    while ((m = epRegex.exec(xml)) !== null) {
-      episodes.push({ number: m[1], title: decodeXml(m[2].trim()) });
-    }
-
-    const openings = [];
-    const opRegex = /<info[^>]*type="Opening Theme"[^>]*>([\s\S]*?)<\/info>/g;
-    while ((m = opRegex.exec(xml)) !== null) {
-      openings.push(decodeXml(m[1].trim()));
-    }
-
-    const endings = [];
-    const edRegex = /<info[^>]*type="Ending Theme"[^>]*>([\s\S]*?)<\/info>/g;
-    while ((m = edRegex.exec(xml)) !== null) {
-      endings.push(decodeXml(m[1].trim()));
-    }
+    const entityUrl = `https://www.wikidata.org/wiki/Special:EntityData/${entity.id}.json`;
+    const entityRes = await fetch(entityUrl, {
+      headers: { 'User-Agent': 'EnterXeraBot/1.0 (https://enterxera.com)' },
+    });
+    if (!entityRes.ok) return null;
+    const entityData = await entityRes.json();
+    const claims = entityData?.entities?.[entity.id]?.claims;
+    const officialUrl = claims?.P856?.[0]?.mainsnak?.datavalue?.value ?? null;
 
     return {
-      synopsis: plotMatch ? decodeXml(plotMatch[1].trim()) : null,
-      ann_picture: picMatch ? picMatch[1] : null,
-      episodes_list: episodes,
-      themes: { openings, endings },
+      wikidata_id: entity.id,
+      official_url: officialUrl,
+      description: entity.description ?? null,
     };
   } catch {
     return null;
@@ -96,10 +80,12 @@ async function main() {
     if (map.anilist_id) reverseByAnilist.set(map.anilist_id, exId);
   }
 
-  const indexList = [];
+  const indexList = new Array(upstream.length);
   let enrichedCount = 0;
+  let skippedCount = 0;
+  let processedCount = 0;
 
-  for (const item of upstream) {
+  async function processItem(item, idx) {
     let exId =
       (item.mal_id && reverseByMal.get(item.mal_id)) ||
       (item.anilist_id && reverseByAnilist.get(item.anilist_id));
@@ -107,6 +93,29 @@ async function main() {
     if (!exId) {
       maxExId += 1;
       exId = maxExId;
+    }
+
+    const shard = getShard(exId);
+    const mediaBase = `https://cdn.jsdelivr.net/gh/enterxera/enterxera-media-${shard}@main`;
+    const detailPath = path.join(ANIME_DIR, `${exId}.json`);
+    const existing = await readJson(detailPath, {});
+
+    let enriched = null;
+    if (existing._wikidata_enriched) {
+      skippedCount++;
+      enriched = {
+        wikidata_id: existing.wikidata_id ?? null,
+        official_url: existing.official_url ?? null,
+        description: existing.description ?? null,
+        _wikidata_enriched: true,
+      };
+    } else if (enrichedCount < ENRICH_LIMIT) {
+      enrichedCount++;
+      const title = item.title_english || item.title_romaji;
+      const wd = await enrichFromWikidata(title);
+      if (wd) {
+        enriched = { ...wd, _wikidata_enriched: true };
+      }
     }
 
     mappings[String(exId)] = {
@@ -117,30 +126,9 @@ async function main() {
       tvdb_id: item.tvdb_id ?? null,
       imdb_id: item.imdb_id ?? null,
       animenewsnetwork_id: item.animenewsnetwork_id ?? null,
-      kitsu_id: item.kitsu_id ?? null,
-      anidb_id: item.anidb_id ?? null,
+      wikidata_id: enriched?.wikidata_id ?? existing.wikidata_id ?? null,
+      official_url: enriched?.official_url ?? existing.official_url ?? null,
     };
-
-    const shard = getShard(exId);
-    const mediaBase = `https://cdn.jsdelivr.net/gh/enterxera/enterxera-media-${shard}@main`;
-    const detailPath = path.join(ANIME_DIR, `${exId}.json`);
-    const existing = await readJson(detailPath, {});
-
-    let enriched = existing._enriched ? {
-      synopsis: existing.synopsis ?? null,
-      ann_picture: existing.ann_picture ?? null,
-      episodes_list: existing.episodes_list ?? [],
-      themes: existing.themes ?? { openings: [], endings: [] },
-      _enriched: true,
-    } : null;
-
-    if (!enriched && item.animenewsnetwork_id && enrichedCount < ENRICH_LIMIT) {
-      const annData = await enrichFromANN(item.animenewsnetwork_id);
-      if (annData) {
-        enriched = { ...annData, _enriched: true };
-        enrichedCount++;
-      }
-    }
 
     const detail = {
       ex_id: exId,
@@ -156,7 +144,7 @@ async function main() {
 
     await fs.writeFile(detailPath, JSON.stringify(detail));
 
-    indexList.push({
+    indexList[idx] = {
       ex_id: exId,
       title_romaji: item.title_romaji ?? null,
       title_english: item.title_english ?? null,
@@ -167,13 +155,25 @@ async function main() {
       episodes: item.episodes ?? null,
       air_date: item.air_date ?? null,
       poster: detail.media.poster,
-    });
+    };
+
+    processedCount++;
+    if (processedCount % 100 === 0 || processedCount === upstream.length) {
+      console.log(
+        `[Progress] ${processedCount}/${upstream.length} | Enriched: ${enrichedCount} | Skipped: ${skippedCount}`
+      );
+    }
+  }
+
+  for (let i = 0; i < upstream.length; i += CONCURRENCY) {
+    const batch = upstream.slice(i, i + CONCURRENCY);
+    await Promise.all(batch.map((item, offset) => processItem(item, i + offset)));
   }
 
   await fs.writeFile(MAPPINGS_PATH, JSON.stringify(mappings, null, 2));
   await fs.writeFile(INDEX_PATH, JSON.stringify(indexList));
   console.log(
-    `Synced ${indexList.length} entries (enriched ${enrichedCount} via ANN). Max ex_id: ${maxExId}`
+    `Done! Synced ${indexList.length} entries (Enriched: ${enrichedCount}, Skipped: ${skippedCount}). Max ex_id: ${maxExId}`
   );
 }
 
