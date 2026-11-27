@@ -8,7 +8,7 @@ const DATA_DIR = path.resolve('data');
 const ANIME_DIR = path.join(DATA_DIR, 'anime');
 const MAPPINGS_PATH = path.join(DATA_DIR, 'mappings.json');
 const INDEX_PATH = path.join(DATA_DIR, 'index.json');
-const ENRICH_LIMIT = Number(process.env.ENRICH_LIMIT || 50);
+const ENRICH_LIMIT = Number(process.env.ENRICH_LIMIT || 500);
 
 async function readJson(filePath, fallback) {
   try {
