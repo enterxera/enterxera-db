@@ -8,6 +8,7 @@ const DATA_DIR = path.resolve('data');
 const ANIME_DIR = path.join(DATA_DIR, 'anime');
 const MAPPINGS_PATH = path.join(DATA_DIR, 'mappings.json');
 const INDEX_PATH = path.join(DATA_DIR, 'index.json');
+const ENRICH_LIMIT = Number(process.env.ENRICH_LIMIT || 50);
 
 async function readJson(filePath, fallback) {
   try {
@@ -20,6 +21,56 @@ async function readJson(filePath, fallback) {
 
 function getShard(exId) {
   return Math.ceil(exId / 10000);
+}
+
+function decodeXml(str) {
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'");
+}
+
+async function enrichFromANN(annId) {
+  try {
+    const res = await fetch(
+      `https://cdn.animenewsnetwork.com/encyclopedia/api.xml?anime=${annId}`
+    );
+    if (!res.ok) return null;
+    const xml = await res.text();
+
+    const plotMatch = xml.match(/<info[^>]*type="Plot Summary"[^>]*>([\s\S]*?)<\/info>/);
+    const picMatch = xml.match(/<info[^>]*type="Picture"[^>]*src="([^"]+)"/);
+
+    const episodes = [];
+    const epRegex = /<episode num="([^"]+)">\s*<title[^>]*>([\s\S]*?)<\/title>/g;
+    let m;
+    while ((m = epRegex.exec(xml)) !== null) {
+      episodes.push({ number: m[1], title: decodeXml(m[2].trim()) });
+    }
+
+    const openings = [];
+    const opRegex = /<info[^>]*type="Opening Theme"[^>]*>([\s\S]*?)<\/info>/g;
+    while ((m = opRegex.exec(xml)) !== null) {
+      openings.push(decodeXml(m[1].trim()));
+    }
+
+    const endings = [];
+    const edRegex = /<info[^>]*type="Ending Theme"[^>]*>([\s\S]*?)<\/info>/g;
+    while ((m = edRegex.exec(xml)) !== null) {
+      endings.push(decodeXml(m[1].trim()));
+    }
+
+    return {
+      synopsis: plotMatch ? decodeXml(plotMatch[1].trim()) : null,
+      ann_picture: picMatch ? picMatch[1] : null,
+      episodes_list: episodes,
+      themes: { openings, endings },
+    };
+  } catch {
+    return null;
+  }
 }
 
 async function main() {
@@ -46,6 +97,7 @@ async function main() {
   }
 
   const indexList = [];
+  let enrichedCount = 0;
 
   for (const item of upstream) {
     let exId =
@@ -71,10 +123,29 @@ async function main() {
 
     const shard = getShard(exId);
     const mediaBase = `https://cdn.jsdelivr.net/gh/enterxera/enterxera-media-${shard}@main`;
+    const detailPath = path.join(ANIME_DIR, `${exId}.json`);
+    const existing = await readJson(detailPath, {});
+
+    let enriched = existing._enriched ? {
+      synopsis: existing.synopsis ?? null,
+      ann_picture: existing.ann_picture ?? null,
+      episodes_list: existing.episodes_list ?? [],
+      themes: existing.themes ?? { openings: [], endings: [] },
+      _enriched: true,
+    } : null;
+
+    if (!enriched && item.animenewsnetwork_id && enrichedCount < ENRICH_LIMIT) {
+      const annData = await enrichFromANN(item.animenewsnetwork_id);
+      if (annData) {
+        enriched = { ...annData, _enriched: true };
+        enrichedCount++;
+      }
+    }
 
     const detail = {
       ex_id: exId,
       ...item,
+      ...(enriched || {}),
       media: {
         poster: `${mediaBase}/posters/${exId}.webp`,
         banner: `${mediaBase}/banners/${exId}.webp`,
@@ -83,10 +154,7 @@ async function main() {
       },
     };
 
-    await fs.writeFile(
-      path.join(ANIME_DIR, `${exId}.json`),
-      JSON.stringify(detail)
-    );
+    await fs.writeFile(detailPath, JSON.stringify(detail));
 
     indexList.push({
       ex_id: exId,
@@ -104,7 +172,9 @@ async function main() {
 
   await fs.writeFile(MAPPINGS_PATH, JSON.stringify(mappings, null, 2));
   await fs.writeFile(INDEX_PATH, JSON.stringify(indexList));
-  console.log(`Synced ${indexList.length} entries. Max ex_id: ${maxExId}`);
+  console.log(
+    `Synced ${indexList.length} entries (enriched ${enrichedCount} via ANN). Max ex_id: ${maxExId}`
+  );
 }
 
 main().catch((err) => {
